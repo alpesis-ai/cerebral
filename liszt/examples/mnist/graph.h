@@ -62,4 +62,27 @@ void net_mlp()
 	}
 }
 
+
+void net_mlp_forward()
+{
+    // layer 1: input -> hidden
+    for (int i = 1; i <= n1; ++i)
+    {
+        w1[i] = new double [n2+1];
+    }
+    out1 = new double [n1+1];
+
+    // layer 2: hidden -> output
+    for (int i = 1; i <= n2; ++i)
+    {
+        w2[i] = new double [n3+1];
+    }
+    in2 = new double [n2+1];
+    out2 = new double [n2+1];
+
+    // layer 3: output
+    in3 = new double [n3+1];
+    out3 = new double [n3+1]; 
+}
+
 #endif

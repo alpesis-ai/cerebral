@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <fstream>
 #include <iostream>
 
 using namespace std;
@@ -24,6 +25,15 @@ double expected[n3+1];
 // convert image vector to image
 int digit[width+1][height+1];
 
+// model file
+const string model_fn = "model_mlp.dat";
+
+
+// File stream to read data (image, label) and write down a report
+ifstream image;
+ifstream label;
+ofstream report;
+
 // -----------------------------------------------------------------------
 // train
 
@@ -43,12 +53,11 @@ const double epsilon = 1e-3;
 // input data
 const string training_image_fn = "data/mnist/train-images-idx3-ubyte";
 const string training_label_fn = "data/mnist/train-labels-idx1-ubyte";
-const int n_train = 60000;  // number of training samples
+const int n_train = 10;  // number of training samples, default: 60000
 
 
 // logs
-const string report_fn = "training_report.dat";
-const string model_fn = "model_mlp.dat";
+const string report_fn_train = "training_report.dat";
 
 
 // -----------------------------------------------------------------------
@@ -57,10 +66,9 @@ const string model_fn = "model_mlp.dat";
 // input data
 const string testing_image_fn = "data/mnist/t10k-images-idx3-ubyte";
 const string testing_label_fn = "data/mnist/t10k-labels-idx1-ubyte";
-const int n_test = 10000;
+const int n_test = 10;  // default: 10000
 
 // logs
-const string report_fn = "testing_report.dat"
-const string model_fn = "model_mlp.dat"
+const string report_fn_test = "testing_report.dat";
 
 #endif
