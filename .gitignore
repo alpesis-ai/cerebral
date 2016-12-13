@@ -1,0 +1,10 @@
+# build
+liszt/build/
+
+# editor
+*.swp
+*.swo
+*.swn
+
+# python
+*.pyc
