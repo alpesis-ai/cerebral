@@ -5,18 +5,32 @@
 
 using namespace std;
 
+// -----------------------------------------------------------------------
+// common
 
-// Model parameters
+// model parameters
 const int width = 28;
 const int height = 28;
 const int n1 = width * height;
 const int n2 = 128;
 const int n3 = 10;
-// Layer parameters
-double *w1[n1+1], *delta1[n1+1], *out1;  // layer1
-double *w2[n2+1], *delta2[n2+1], *in2, *out2, *theta2;  // layer2
-double *in3, *out3, *theta3; // layer3
+
+// layer parameters
+double *w1[n1+1], *out1;              // layer1
+double *w2[n2+1], *in2, *out2;        // layer2
+double *in3, *out3;                   // layer3
 double expected[n3+1];
+
+// convert image vector to image
+int digit[width+1][height+1];
+
+// -----------------------------------------------------------------------
+// train
+
+// Layer parameters
+double *delta1[n1+1];  // layer1
+double *delta2[n2+1], *theta2;  // layer2
+double *theta3; // layer3
 
 
 // train process
@@ -36,9 +50,17 @@ const int n_train = 60000;  // number of training samples
 const string report_fn = "training_report.dat";
 const string model_fn = "model_mlp.dat";
 
-// evaluation
-// convert image vector to image
-int digit[width+1][height+1];
 
+// -----------------------------------------------------------------------
+// test
+
+// input data
+const string testing_image_fn = "data/mnist/t10k-images-idx3-ubyte";
+const string testing_label_fn = "data/mnist/t10k-labels-idx1-ubyte";
+const int n_test = 10000;
+
+// logs
+const string report_fn = "testing_report.dat"
+const string model_fn = "model_mlp.dat"
 
 #endif
