@@ -17,7 +17,10 @@ FILE (COPY ${PROJECT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # add the binary tree to the search path for include files
 # so that we will find the header files
-INCLUDE_DIRECTORIES ( 
+INCLUDE_DIRECTORIES (
+    "${PROJECT_SOURCE_DIR}/core/model/"
+    "${PROJECT_SOURCE_DIR}/core/nn/" 
+    "${PROJECT_SOURCE_DIR}/core/ops/io/" 
     "${PROJECT_SOURCE_DIR}/examples/mnist/" 
 )
 

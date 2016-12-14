@@ -6,7 +6,7 @@
 #include "settings.h"
 
 
-void net_mlp() 
+void init_params_train() 
 {
 	// Layer 1 - Layer 2 = Input layer - Hidden layer
     for (int i = 1; i <= n1; ++i) {
@@ -63,7 +63,7 @@ void net_mlp()
 }
 
 
-void net_mlp_forward()
+void init_params_test()
 {
     // layer 1: input -> hidden
     for (int i = 1; i <= n1; ++i)

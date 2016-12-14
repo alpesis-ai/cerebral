@@ -7,8 +7,14 @@ Liszt
 
     liszt/
       +---- core/
+      +       +---- ops
+      +       +      +---- io
+      +       +
+      +       +---- model
+      +       +---- nn
+      +
       +---- api/
       +---- data/
       +---- examples/
       +---- dashboard/
-      #---- distri/
+      +---- distri/

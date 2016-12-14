@@ -5,10 +5,11 @@
 #include <iostream>
 
 #include "settings.h"
-#include "graph.h"
-#include "mlp.h"
+#include "init_params.h"
+#include "../../core/model/mlp.h"
 #include "preprocessor.h"
-#include "errors.h"
+#include "../../core/nn/errors.h"
+#include "../../core/ops/io/model_saver.h"
 
 using namespace std;
 
@@ -70,28 +71,6 @@ int learning_process()
 }
 
 
-void save_model(string file_name) {
-    ofstream file(file_name.c_str(), ios::out);
-	
-	// Input layer - Hidden layer
-    for (int i = 1; i <= n1; ++i) {
-        for (int j = 1; j <= n2; ++j) {
-			file << w1[i][j] << " ";
-		}
-		file << endl;
-    }
-	
-	// Hidden layer - Output layer
-    for (int i = 1; i <= n2; ++i) {
-        for (int j = 1; j <= n3; ++j) {
-			file << w2[i][j] << " ";
-		}
-        file << endl;
-    }
-	
-	file.close();
-}
-
 
 void train_process()
 {
@@ -112,7 +91,7 @@ void train_process()
         label.read(&number, sizeof(char));
     }
 
-    net_mlp();
+    init_params_train();
 
     for (int sample = 1; sample <= n_train; ++sample)
     {
@@ -134,7 +113,7 @@ void train_process()
         */
     }
 
-    save_model(model_fn);
+    model_save(model_fn);
 
     // file closed
     image.close();

@@ -1,8 +1,9 @@
 #include <iostream>
 
 #include "settings.h"
-#include "graph.h"
-#include "mlp.h"
+#include "init_params.h"
+#include "../../core/model/mlp.h"
+#include "../../core/ops/io/model_saver.h"
 
 using namespace std;
 
@@ -21,31 +22,6 @@ void desc_test()
     cout << " - No. of testing samples: " << n_test << endl;
 }
 
-
-void load_model(string file_name)
-{
-    ifstream file(file_name.c_str(), ios::in);
-
-    // layer 1: input -> hidden
-    for (int i = 1; i <= n1; ++i)
-    {
-        for (int j = 1; j <= n2; ++j)
-        {
-            file >> w1[i][j];
-        }
-    }
-
-    // layer 2: hidden -> output
-    for (int i = 1; i <= n2; ++i)
-    {
-        for (int j = 1; j <= n3; ++j)
-        {
-            file >> w2[i][j];
-        }
-    }
-
-    file.close();
-}
 
 
 void test_process()
@@ -66,8 +42,8 @@ void test_process()
     }
 
     // initialize the net
-    net_mlp_forward();
-    load_model(model_fn);  // load model (weights matrices) of a trained neural network
+    init_params_test();
+    model_load(model_fn);  // load model (weights matrices) of a trained neural network
 
     int n_correct = 0;
     for (int sample = 1; sample <= n_test; ++sample)
