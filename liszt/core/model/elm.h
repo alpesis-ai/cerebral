@@ -1,36 +1,44 @@
-#ifndef ELM_H
-#define ELM_H
+#ifndef ELM_H_
+#define ELM_H_
 
-// ELM train
-// input: X, Y, num_hidden, C
-// output: in_weights, bias, out_weights
-template <typename Derived>
-int elm_train(double* X,
-              int dims,
-              int n_train,
-              double* Y,
-              const int num_hidden,
-              const double C,
-              MatrixBase<Derived>& in_weights,
-              MatrixBase<Derived>& bias,
-              MatrixBase<Derived>& out_weights);
+#include <armadillo>
+
+using namespace arma;
 
 
-// ELM tst
-// input: X, in_weights, bias, out_weights
-// output: scores
-template <typename Derived>
-int elm_test(double* X,
-             int dims,
-             int n_test,
-             MatrixBase<Derived>& score_matrix,
-             MatrixBase<Derived>& in_weights,
-             MatrixBase<Derived>& bias,
-             MatrixBase<Derived>& out_weights);
+class ELM
+{
+    private:
+        
+        // input parameters
+        uint16_t n_hidden;  // number of hidden neurons
+        uint16_t dim;         // data dimension
+        uint16_t n_samples;    // number of data samples
+
+        // network parameters
+        mat weight;
+        vec bias;
+        mat beta;
+        uint16_t activation;
+
+        // evaluation
+        double train_time;
+        double test_time;
+        double train_accuracy;
+        double test_accuracy;
 
 
-// helpers
-int compare(const void* a, const void* b);
-MatrixXd buildTargetMatrix(double* Y, int n_labels);
+    public:
+        // initialize network
+        void set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
+        void init_nn_params();  // initialize weights and biases
+        void config_nn(uint16_t n_hidden, uint16_t dim, uint16_n_samples);
+        
+        // train/test process
+        bool elm_train(mat &train_X, mat &train_Y, uint16_t activation);
+        bool elm_test(mat &test_X, mat &test_Y);
+
+        void save_elm();
+}
 
 #endif
