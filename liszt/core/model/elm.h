@@ -38,6 +38,8 @@ class ELM
         // train/test process
         bool train(mat &train_X, mat &train_Y, uint16_t activation);
         bool test(mat &test_X, mat &test_Y, uint16_t activation);
+        bool train_gpu(mat &train_X, mat &train_Y, uint16_t activation);
+        bool test_gpu(mat &test_X, mat &test_Y, uint16_t activation);
 
         void save_model();
 };

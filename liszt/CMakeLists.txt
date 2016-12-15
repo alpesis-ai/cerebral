@@ -8,21 +8,21 @@ PROJECT ( LISZT )
 # SET ( LISZT_VERSION_MINOR 0 )
 
 # ------------------------------------------------------------------
-# compiler settings
-
-set (CMAKE_CXX_STANDARD 11)
-
-# ------------------------------------------------------------------
 # Libraries
 
-link_directories(/usr/lib)
+LINK_DIRECTORIES ( /usr/lib )
 
 # armadillo
-find_package(Armadillo REQUIRED)
-include_directories(${ARMADILLO_INCLUDE_DIRS})
+FIND_PACKAGE ( Armadillo REQUIRED )
+INCLUDE_DIRECTORIES ( ${ARMADILLO_INCLUDE_DIRS} )
+
+# cuda
+FIND_PACKAGE ( CUDA REQUIRED )
+INCLUDE ( FindCUDA )
+INCLUDE_DIRECTORIES ( ${CUDA_INCLUDE_DIRS} )
 
 # ------------------------------------------------------------------
-# Compile settings
+# Source settings
 
 # configure a header file to pass some of the CMake settings to the source code
 # CONFIGURE_FILE ()
@@ -38,10 +38,34 @@ INCLUDE_DIRECTORIES (
     "${PROJECT_SOURCE_DIR}/examples/mnist/" 
 )
 
+# include all files
+# FILE ( GLOB SOURCES
+#    "${PROJECT_SOURCE_DIR}/core/model/*.h"
+#    "${PROJECT_SOURCE_DIR}/core/model/*.cpp"
+#    "${PROJECT_SOURCE_DIR}/core/model/*.cuh"
+#    "${PROJECT_SOURCE_DIR}/core/model/*.cu"
+#)
+
+# ------------------------------------------------------------------
+# Compile Settings
+
+# c++
+SET ( CMAKE_CXX_STANDARD 11 )
+
+# nvcc
+# SET ( CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -gencode arch=compute_20,code=sm_20 )
+LIST ( APPEND CUDA_NVCC_FLAGS "-arch=sm_20;-std=c++11;-O2;-DVERBOSE" )
+
+# ------------------------------------------------------------------
+# Executable Settings
 
 # add the executable
 # mnist
 ADD_EXECUTABLE ( MNIST examples/mnist/mnist.cpp )
+
 # regression
-ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp)
-TARGET_LINK_LIBRARIES( REG ${ARMADILLO_LIBRARIES} )
+# ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp)
+# TARGET_LINK_LIBRARIES( REG ${ARMADILLO_LIBRARIES} )
+# regression: GPU
+CUDA_ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp core/model/elm.cu)
+TARGET_LINK_LIBRARIES ( REG ${ARMADILLO_LIBRARIES} ${CUDA_LIBRARIES} )

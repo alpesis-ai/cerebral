@@ -10,51 +10,34 @@
 
 using namespace std;
 
-// ---------------------------------------------------------------------------
-// initialize network
-
-
-void ELM::set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
-{
-    N_Hidden = n_hidden;
-    Dim = dim;
-    N_Samples = n_samples;
-}
-
-
-
-// initialize weights and bias
-void ELM::init_nn_params()
-{
-    mt19937 engine(time(0));  // Mersenne twister random number engine
-    uniform_real_distribution<double> distr(1.0, 2.0);
-    weight.set_size(N_Hidden, Dim);
-    // cout << "n_hidden" << N_Hidden << endl;
-    // cout << "weight: " << weight << endl;
-    weight.imbue([&]() { return distr(engine); });
-
-    bias.randu(N_Hidden, 1);
-}
-
-
-void ELM::config_nn(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
-{
-    set_dim(n_hidden, dim, n_samples);
-    arma_rng::set_seed_random();
-    init_nn_params();
-}
-
 
 // ---------------------------------------------------------------------------
-// train/test: CPU
+// train/test: GPU
 
 
-bool ELM::train(mat &train_X, mat &train_Y, uint16_t activation)
+bool ELM::train_gpu(mat &train_X, mat &train_Y, uint16_t activation)
 {
     wall_clock timer;
     mat param;
 
+    // set up cuda and cublas
+    cudaError_t cudaStat;     // cudaMalloc status
+    cublasStatus_t stat;      // CUBLAS function status
+    cublasHandle_t handle;    // CUBLAS context
+
+    // initialization: gpu
+    // thrust::device_vector<float> d_train_X(train_X.n_rows * train_X.n_cols);
+    // thrust::device_vector<float> d_weight_t(weight.n_rows * weight.n_cols);
+    float* d_train_X;
+    float* d_weight_t;
+    cudaStat = cudaMalloc((void**)& d_train_X, train_X.n_rows * train_X.n_cols);
+    cudaStat = cudaMalloc((void**)& d_weight_t, weight.n_cols * weight.n_rows);
+
+    stat = cublasCreate(&handle);
+    //stat = cublasSetMatrix(
+
     timer.tic();
+    /*
         param = train_X * weight.t(); 
         mat hidden = zeros(N_Samples, N_Hidden);
 
@@ -85,7 +68,6 @@ bool ELM::train(mat &train_X, mat &train_Y, uint16_t activation)
 
         beta = hidden_inv * train_Y;
         // cout << "beta: " << beta << endl;
-
     train_time = timer.toc();
 
     mat Y_hat = hidden * beta;
@@ -96,13 +78,14 @@ bool ELM::train(mat &train_X, mat &train_Y, uint16_t activation)
     cout << "Training time = " << train_time << endl;
 
     save_model();
+    */
 
     return true;
         
 }
 
 
-bool ELM::test(mat &test_X, mat &test_Y, uint16_t activation)
+bool ELM::test_gpu(mat &test_X, mat &test_Y, uint16_t activation)
 {
     wall_clock timer;
     mat param;
@@ -146,13 +129,4 @@ bool ELM::test(mat &test_X, mat &test_Y, uint16_t activation)
     return true;
 }
 
-
-// ---------------------------------------------------------------------------
-
-void ELM::save_model()
-{
-    weight.save("weights.csv", csv_ascii);
-    bias.save("bias.csv", csv_ascii);
-    beta.save("beta.csv", csv_ascii); 
-}
 

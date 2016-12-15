@@ -1,35 +1,22 @@
-#include "../../core/model/elm.h"
-
-#include <armadillo>
-
-using namespace arma;
+#include "process.h"
 
 
-int main()
+int main(int argc, char* argv[])
 {
+    if ((argc != 2) or (strcmp(argv[1], "cpu") != 0) or (strcmp(argv[1], "gpu") != 0))
+    {
+        cout << "Usage: ./REG <cpu/gpu>" << endl;
+    }
 
-    // initialize data
-    mat x;
-    mat y;
-    x.load("data/regression_dummy/x_train.csv", csv_ascii);
-    y.load("data/regression_dummy/y_train.csv", csv_ascii);
-
-    // initialize model params
-    int n_hidden = 2000;
-    int dim = x.n_cols;
-    int n_samples = x.n_rows;
-    int activation = 0;  // sigmoid
-    // initialize nn
-    ELM elm;
-    elm.config_nn(n_hidden, dim, n_samples);
-
-    // train
-    bool r = elm.train(x, y, activation);
-
-    // test
-    x.load("data/regression_dummy/x_test.csv", csv_ascii);
-    y.load("data/regression_dummy/y_test.csv", csv_ascii);
-    r = elm.test(x, y, activation);
+    if ((argc == 2) && (strcmp(argv[1], "cpu") == 0))
+    {
+        elm_cpu();
+    }
+    
+    if ((argc == 2) && (strcmp(argv[1], "gpu") == 0))
+    {
+        elm_gpu();
+    } 
 
     return 0;
 }
