@@ -3,13 +3,22 @@
 
 #include <iostream>
 
+#include "../../core/model/elm.h"
+
+
 using namespace std;
 
 
 int train_elm()
 {
 
-    cout << "train_elm()" << endl;;
+    ELM elm;
+
+    mat x;
+    mat y;
+
+    
+
     return 0;
 }
 

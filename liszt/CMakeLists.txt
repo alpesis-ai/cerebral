@@ -8,6 +8,20 @@ PROJECT ( LISZT )
 # SET ( LISZT_VERSION_MINOR 0 )
 
 # ------------------------------------------------------------------
+# compiler settings
+
+set (CMAKE_CXX_STANDARD 11)
+
+# ------------------------------------------------------------------
+# Libraries
+
+link_directories(/usr/lib)
+
+# armadillo
+find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
+
+# ------------------------------------------------------------------
 # Compile settings
 
 # configure a header file to pass some of the CMake settings to the source code
@@ -24,5 +38,10 @@ INCLUDE_DIRECTORIES (
     "${PROJECT_SOURCE_DIR}/examples/mnist/" 
 )
 
+
 # add the executable
+# mnist
 ADD_EXECUTABLE ( MNIST examples/mnist/mnist.cpp )
+# regression
+ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp)
+TARGET_LINK_LIBRARIES( REG ${ARMADILLO_LIBRARIES} )

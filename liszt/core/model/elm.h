@@ -1,6 +1,7 @@
 #ifndef ELM_H_
 #define ELM_H_
 
+#include <stdint.h>
 #include <armadillo>
 
 using namespace arma;
@@ -11,9 +12,9 @@ class ELM
     private:
         
         // input parameters
-        uint16_t n_hidden;  // number of hidden neurons
-        uint16_t dim;         // data dimension
-        uint16_t n_samples;    // number of data samples
+        uint16_t N_Hidden;  // number of hidden neurons
+        uint16_t Dim;         // data dimension
+        uint16_t N_Samples;    // number of data samples
 
         // network parameters
         mat weight;
@@ -32,13 +33,13 @@ class ELM
         // initialize network
         void set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
         void init_nn_params();  // initialize weights and biases
-        void config_nn(uint16_t n_hidden, uint16_t dim, uint16_n_samples);
+        void config_nn(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
         
         // train/test process
-        bool elm_train(mat &train_X, mat &train_Y, uint16_t activation);
-        bool elm_test(mat &test_X, mat &test_Y);
+        bool train(mat &train_X, mat &train_Y, uint16_t activation);
+        bool test(mat &test_X, mat &test_Y, uint16_t activation);
 
-        void save_elm();
-}
+        void save_model();
+};
 
 #endif
