@@ -10,6 +10,9 @@ PROJECT ( LISZT )
 # ------------------------------------------------------------------
 # Libraries
 
+# set cmake files
+# SET ( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
+
 LINK_DIRECTORIES ( /usr/lib )
 
 # armadillo
@@ -17,9 +20,10 @@ FIND_PACKAGE ( Armadillo REQUIRED )
 INCLUDE_DIRECTORIES ( ${ARMADILLO_INCLUDE_DIRS} )
 
 # cuda
-FIND_PACKAGE ( CUDA REQUIRED )
-INCLUDE ( FindCUDA )
-INCLUDE_DIRECTORIES ( ${CUDA_INCLUDE_DIRS} )
+INCLUDE ( cmake/FindCUDA.cmake )
+# FIND_PACKAGE ( CUDA REQUIRED )
+# INCLUDE ( FindCUDA )
+# INCLUDE_DIRECTORIES ( ${CUDA_INCLUDE_DIRS} )
 
 # ------------------------------------------------------------------
 # Source settings
@@ -68,4 +72,4 @@ ADD_EXECUTABLE ( MNIST examples/mnist/mnist.cpp )
 # TARGET_LINK_LIBRARIES( REG ${ARMADILLO_LIBRARIES} )
 # regression: GPU
 CUDA_ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp core/model/elm.cu)
-TARGET_LINK_LIBRARIES ( REG ${ARMADILLO_LIBRARIES} ${CUDA_LIBRARIES} )
+TARGET_LINK_LIBRARIES ( REG ${ARMADILLO_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} )

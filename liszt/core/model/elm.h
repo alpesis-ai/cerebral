@@ -30,18 +30,26 @@ class ELM
 
 
     public:
-        // initialize network
+
+        // common
         void set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
+        void save_model();
+
+        // CPU
+        // CPU: network
         void init_nn_params();  // initialize weights and biases
         void config_nn(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
-        
-        // train/test process
+        // CPU: train/test
         bool train(mat &train_X, mat &train_Y, uint16_t activation);
         bool test(mat &test_X, mat &test_Y, uint16_t activation);
+
+        // GPU
+        // GPU: network
+        void init_nn_params_gpu();  // initialize weights and bias
+        void config_nn_gpu(uint16_t n_hidden, uint16_t dim, uint16_t n_samples);
+        // GPU: train/test
         bool train_gpu(mat &train_X, mat &train_Y, uint16_t activation);
         bool test_gpu(mat &test_X, mat &test_Y, uint16_t activation);
-
-        void save_model();
 };
 
 #endif
