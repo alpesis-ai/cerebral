@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <iomanip>
+#include <iostream>
 
 #include "../../core/model/elm.h"
 
@@ -40,8 +42,8 @@ void elm_gpu()
     cout << "ELM GPU" << endl;
 
     // initialize data
-    mat x;
-    mat y;
+    fmat x;
+    fmat y;
     x.load("data/regression_dummy/x_train.csv", csv_ascii);
     y.load("data/regression_dummy/y_train.csv", csv_ascii);
 
@@ -51,11 +53,11 @@ void elm_gpu()
     int n_samples = x.n_rows;
     int activation = 0;  // sigmoid
     // initialize nn
-    ELM elm;
-    elm.config_nn(n_hidden, dim, n_samples);
+    ELMGPU elm_g;
+    elm_g.config_nn(n_hidden, dim, n_samples);
 
     // train
-    bool r = elm.train_gpu(x, y, activation);
+    bool r = elm_g.train(x, y, activation);
 
     // test
     // x.load("data/regression_dummy/x_test.csv", csv_ascii);

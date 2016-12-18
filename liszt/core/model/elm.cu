@@ -1,139 +1,73 @@
-#include <math.h>
-#include <random>
-
-#include <cuda_runtime.h>
-#include "cublas_v2.h"
-
 #include "elm.h"
-
-using namespace std;
-
-// ---------------------------------------------------------------------------
-// initialize network
+#include "../nn/math/matrix_gpu.h"
+#include "../utils/matrix_processor.h"
+#include "../nn/math/matrix_gpu.h"
 
 
-
-// initialize weights and bias
-void ELM::init_nn_params_gpu()
+void ELMGPU::set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
 {
-    mt19937 engine(time(0));  // Mersenne twister random number engine
-    uniform_real_distribution<double> distr(1.0, 2.0);
-    weight.set_size(N_Hidden, Dim);
-    // cout << "n_hidden" << N_Hidden << endl;
-    // cout << "weight: " << weight << endl;
-    weight.imbue([&]() { return distr(engine); });
-
-    bias.randu(N_Hidden, 1);
+    N_Hidden = n_hidden;
+    Dim = dim;
+    N_Samples = n_samples;
 }
 
 
-void ELM::config_nn_gpu(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
+void ELMGPU::init_nn_params()
+{
+    // generate the weights
+    h_weight = (float*)malloc(N_Hidden * Dim * sizeof(float));
+    cudaMalloc(&d_weight, N_Hidden * Dim * sizeof(float));
+    fill_rand_gpu(d_weight, N_Hidden * Dim * sizeof(float), cudaMemcpyDeviceToHost);
+    
+    // generate the bais
+    h_bias = (float*)malloc(N_Hidden * 1 * sizeof(float));
+    cudaMalloc(&d_bias, N_Hidden * 1 * sizeof(float));
+    fill_rand_gpu(d_bias, N_Hidden, 1);  
+}
+
+
+void ELMGPU::config_nn(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
 {
     set_dim(n_hidden, dim, n_samples);
-    arma_rng::set_seed_random();
-    init_nn_params_gpu();
+    init_nn_params();
 }
 
 
-// ---------------------------------------------------------------------------
-// train/test: CPU
-
-
-bool ELM::train_gpu(mat &train_X, mat &train_Y, uint16_t activation)
+bool ELMGPU::train(fmat train_X, fmat train_Y, uint16_t activation)
 {
-    wall_clock timer;
-    mat param;
 
-    timer.tic();
-        param = train_X * weight.t(); 
-        mat hidden = zeros(N_Samples, N_Hidden);
+    // host
+    float* h_train_X = convert_matrix(train_X);
+    float* h_train_Y = convert_matrix(train_Y);
 
-        double alpha = 0.2;
-        double lambda = 5;
-        activation = activation;
+    // device
+    float *d_train_X;
+    float *d_train_Y;
+    cudaMalloc((void**)&d_train_X, train_X.n_rows * train_X.n_cols * sizeof(float));
+    cudaMalloc((void**)&d_train_Y, train_Y.n_rows * train_Y.n_cols * sizeof(float));
 
-        cout << "activation: " << activation << endl;
-        switch (activation)
-        {
-            case 0: // sigmoid
-                for (int i = 0; i < hidden.n_rows; ++i)
-                {
-                    for (int j = 0; j < hidden.n_cols; ++j)
-                    {
-                        hidden(i, j) = 1.0 / (1.0 + exp(-(param(i,j) + bias(j))));
-                    }
-                }
-                break;
+    // host -> device
+    cudaMemcpy(d_train_X, h_train_X, train_X.n_rows * train_X.n_cols * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_train_Y, h_train_Y, train_X.n_rows * train_X.n_cols * sizeof(float), cudaMemcpyHostToDevice);
 
-            default:
-                cout << "undefined activation function." << endl;
-                return false;
-        }
+    // transpose weight
+    float* d_weight_t = (float*)malloc(N_Hidden * Dim * sizeof(float));
+    cublas_sgeam(d_weight, d_weight_t, N_Hidden, Dim);
+    // train_X * weight.t()
+    // float* d_hidden = (float*)malloc(train_X.n_rows * N_Hidden * sizeof(float));
+    // cublas_mmul(d_train_X, d_weight_t, d_hidden, train_X.n_rows, train_X.n_cols, N_Hidden);
 
-        mat hidden_inv = pinv(hidden);
-        // cout << "hidden pseudoinverse: " << hidden_inv;
-
-        beta = hidden_inv * train_Y;
-        // cout << "beta: " << beta << endl;
-
-    train_time = timer.toc();
-
-    mat Y_hat = hidden * beta;
-    vec temp = train_Y - Y_hat;
-
-    double error = stddev(temp);
-    cout << "(Train) RMSE = " << error << endl;
-    cout << "Training time = " << train_time << endl;
-
-    save_model();
-
-    return true;
-        
-}
-
-
-bool ELM::test_gpu(mat &test_X, mat &test_Y, uint16_t activation)
-{
-    wall_clock timer;
-    mat param;
-
-    timer.tic();
-        param = test_X * weight.t();
-        mat hidden = zeros(N_Samples, N_Hidden);
-
-        double alpha = 0.2;
-        double lambda = 5;
-
-        cout << "activation: " << activation << endl;
-        switch(activation)
-        {
-            case 0:  // sigmoid
-                for (int i = 0; i < hidden.n_rows; ++i)
-                {
-                    for (int j = 0; j < hidden.n_cols; ++j)
-                    {
-                        hidden(i, j) = 1.0 / (1.0 + exp(-(param(i,j) + bias(j))));
-                    }
-                }
-                break;
-
-            default:
-                cout << "undefined activation function." << endl;
-                return false;
-        }
-
-    test_time = timer.toc();
-    
-    mat Y_hat = hidden * beta;
-    vec temp = test_Y - Y_hat;
-
-    double error = stddev(temp);
-    cout << "Test RMSE = " << error << endl;
-    cout << "Testing time = " << test_time << " seconds." << endl;
-
-    Y_hat.save("y_hat.csv", csv_ascii);
+    cudaFree(d_train_X);
+    cudaFree(d_train_Y);
+    cudaFree(d_weight_t);
+    // cudaFree(d_hidden);
 
     return true;
 }
 
+
+bool ELMGPU::test(float *h_test_X, float *h_test_Y, uint16_t activation)
+{
+    return true;
+}
 
