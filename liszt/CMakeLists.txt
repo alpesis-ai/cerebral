@@ -37,6 +37,7 @@ FILE (COPY ${PROJECT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # so that we will find the header files
 INCLUDE_DIRECTORIES (
     "${PROJECT_SOURCE_DIR}/core/model/"
+    "${PROJECT_SOURCE_DIR}/core/model/mlp/"
     "${PROJECT_SOURCE_DIR}/core/nn/" 
     "${PROJECT_SOURCE_DIR}/core/nn/math/" 
     "${PROJECT_SOURCE_DIR}/core/ops/io/" 
@@ -74,3 +75,9 @@ ADD_EXECUTABLE ( MNIST examples/mnist/mnist.cpp )
 # regression: GPU
 CUDA_ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp core/model/elm.cu)
 TARGET_LINK_LIBRARIES ( REG ${ARMADILLO_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} )
+
+
+# iris
+CUDA_ADD_EXECUTABLE ( IRISCPU examples/iris/iris_cpu_mlp.cpp )
+# CUDA_ADD_EXECUTABLE (IRISGPU examples/iris/iris_gpu_mlp.cpp )
+# TARGET_LINK_LIBRARIES( IRISGPU ${CUDA_LIBRARIES} )

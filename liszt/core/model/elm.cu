@@ -1,6 +1,6 @@
 #include "elm.h"
 #include "../nn/math/matrix_gpu.h"
-#include "../utils/matrix_processor.h"
+#include "../util/matrix_processor.h"
 #include "../nn/math/matrix_gpu.h"
 
 
