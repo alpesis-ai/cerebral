@@ -40,6 +40,7 @@ INCLUDE_DIRECTORIES (
     "${PROJECT_SOURCE_DIR}/core/model/mlp/"
     "${PROJECT_SOURCE_DIR}/core/nn/" 
     "${PROJECT_SOURCE_DIR}/core/nn/math/" 
+    "${PROJECT_SOURCE_DIR}/core/nn/kernel/" 
     "${PROJECT_SOURCE_DIR}/core/ops/io/" 
     "${PROJECT_SOURCE_DIR}/examples/mnist/" 
 )
@@ -73,11 +74,11 @@ ADD_EXECUTABLE ( MNIST examples/mnist/mnist.cpp )
 # ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp)
 # TARGET_LINK_LIBRARIES( REG ${ARMADILLO_LIBRARIES} )
 # regression: GPU
-CUDA_ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp core/model/elm.cu)
+CUDA_ADD_EXECUTABLE ( REG examples/regression/reg.cpp core/model/elm.cpp core/model/elm.cu core/nn/kernel/initializer.cu)
 TARGET_LINK_LIBRARIES ( REG ${ARMADILLO_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} )
 
 
 # iris
-CUDA_ADD_EXECUTABLE ( IRISCPU examples/iris/iris_cpu_mlp.cpp )
+# CUDA_ADD_EXECUTABLE ( IRISCPU examples/iris/iris_cpu_mlp.cpp )
 # CUDA_ADD_EXECUTABLE (IRISGPU examples/iris/iris_gpu_mlp.cpp )
 # TARGET_LINK_LIBRARIES( IRISGPU ${CUDA_LIBRARIES} )

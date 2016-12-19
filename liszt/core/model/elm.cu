@@ -1,7 +1,10 @@
+#include <thrust/device_vector.h>
+
 #include "elm.h"
 #include "../nn/math/matrix_gpu.h"
 #include "../util/matrix_processor.h"
 #include "../nn/math/matrix_gpu.h"
+#include "../nn/kernel/initializer.h"
 
 
 void ELMGPU::set_dim(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
@@ -36,6 +39,10 @@ void ELMGPU::config_nn(uint16_t n_hidden, uint16_t dim, uint16_t n_samples)
 bool ELMGPU::train(fmat train_X, fmat train_Y, uint16_t activation)
 {
 
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+
     // host
     float* h_train_X = convert_matrix(train_X);
     float* h_train_Y = convert_matrix(train_Y);
@@ -51,11 +58,20 @@ bool ELMGPU::train(fmat train_X, fmat train_Y, uint16_t activation)
     cudaMemcpy(d_train_Y, h_train_Y, train_X.n_rows * train_X.n_cols * sizeof(float), cudaMemcpyHostToDevice);
 
     // transpose weight
+    float* h_weight_t = (float*)malloc(N_Hidden * Dim * sizeof(float));
     float* d_weight_t = (float*)malloc(N_Hidden * Dim * sizeof(float));
+    stat = cublasSetMatrix(N_Hidden, Dim, sizeof(float), h_weight_t, N_Hidden, d_weight_t, N_Hidden);
     cublas_sgeam(d_weight, d_weight_t, N_Hidden, Dim);
+
     // train_X * weight.t()
-    // float* d_hidden = (float*)malloc(train_X.n_rows * N_Hidden * sizeof(float));
-    // cublas_mmul(d_train_X, d_weight_t, d_hidden, train_X.n_rows, train_X.n_cols, N_Hidden);
+    float* h_hidden;
+    h_hidden = (float*)malloc(train_X.n_rows * N_Hidden * sizeof(float));
+    float* d_hidden;
+    cudaStat = cudaMalloc((void**)& d_hidden, train_X.n_rows * N_Hidden * sizeof(float));
+    stat = cublasCreate(&handle);
+    stat = cublasSetMatrix(train_X.n_rows, train_X.n_cols, sizeof(float), h_train_X, train_X.n_rows, d_train_X, train_X.n_rows);
+    stat = cublasSetMatrix(train_X.n_rows, N_Hidden, sizeof(float), h_hidden, train_X.n_rows, d_hidden, train_X.n_rows);
+    cublas_mmul(d_train_X, d_weight_t, d_hidden, train_X.n_rows, train_X.n_cols, N_Hidden);
 
     cudaFree(d_train_X);
     cudaFree(d_train_Y);
