@@ -1,4 +1,6 @@
+#include "gpu_settings.h"
 #include "initializer.h"
+
 
 void fill(int *d_a, int n)
 {
